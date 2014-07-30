@@ -22,6 +22,8 @@ public final class HanjaMappingFilter extends TokenFilter {
     private final LinkedList<KoreanToken> outQueue = new LinkedList<KoreanToken>();
 
     private State currentState = null;
+    
+    private static int maxCandidateSize = 5;
 
     private final CompoundNounAnalyzer cnAnalyzer = new CompoundNounAnalyzer();
 
@@ -38,6 +40,7 @@ public final class HanjaMappingFilter extends TokenFilter {
      */
     protected HanjaMappingFilter(TokenStream input) {
         super(input);
+        cnAnalyzer.setExactMach(false);
     }
 
     @Override
@@ -50,7 +53,8 @@ public final class HanjaMappingFilter extends TokenFilter {
         }
 
         while (input.incrementToken()) {
-            if(!hasHanja(termAtt.toString())) return true;
+            if(posIncrAtt.getPositionIncrement()==0 ||
+            		!hasHanja(termAtt.toString())) return true;
 
             int startOffset = offsetAtt.startOffset();
 
@@ -138,14 +142,14 @@ public final class HanjaMappingFilter extends TokenFilter {
         List<StringBuffer> candiList = new ArrayList<StringBuffer>();
         candiList.add(new StringBuffer());
 
+        List<StringBuffer> removeList = new ArrayList<StringBuffer>(); // 제거될 후보를 저장
+        
         for(int i=0;i<term.length();i++) {
 
             char[] chs = HanjaUtils.convertToHangul(term.charAt(i));
             if(chs==null) continue;
 
-            List<StringBuffer> removeList = new ArrayList<StringBuffer>(); // 제거될 후보를 저장
-
-            int caniSize = candiList.size();
+           int caniSize = candiList.size();
 
             for(int j=0;j<caniSize;j++) {
                 String origin = candiList.get(j).toString();
@@ -159,53 +163,69 @@ public final class HanjaMappingFilter extends TokenFilter {
 
                     sb.append(chs[k]);
                     if(k>0)  candiList.add(sb);
-
-                    Iterator<String[]> iter = DictionaryUtil.findWithPrefix(sb.toString());
-                    if(!iter.hasNext()) // 사전에 없으면 삭제 후보
-                        removeList.add(sb);
+                    
+                	Iterator<String[]> iter = DictionaryUtil.findWithPrefix(sb.toString());
+                    if(!iter.hasNext() && !removeList.contains(sb)) removeList.add(sb); // 사전에 없으면 삭제 후보
                 }
             }
-
-            if(removeList.size()==candiList.size()) { // 사전에서 찾은 단어가 하나도 없다면..
-                candiList = candiList.subList(0, 1); // 첫번째만 생성하고 나머지는 버림
-            }
-
-            for(StringBuffer rsb : removeList) {
-                if(candiList.size()>1) candiList.remove(rsb);
+            
+            // 후보가 정해진 갯수보다 크면 이후는 삭제하여 지나친 메모리 사용을 방지한다.
+            if(candiList.size()>maxCandidateSize) {
+            	List<StringBuffer> removed = candiList.subList(maxCandidateSize, candiList.size());
+    			for(StringBuffer rsb : removed) {
+    				removeList.remove(rsb);
+    				candiList.remove(rsb);
+    			}
             }
         }
 
-        int maxCandidate = 5;
-        if(candiList.size()<maxCandidate) maxCandidate=candiList.size();
-
-        for(int i=0;i<maxCandidate;i++) {
-            int inc = outQueue.size()==1? 0 : 1;
-            outQueue.add(new KoreanToken(candiList.get(i).toString(),offsetAtt.startOffset(), inc));
+	    if(removeList.size()!=candiList.size()) { // 사전에서 찾은 단어가 하나도 없다면..
+			for(StringBuffer rsb : removeList) {
+			    candiList.remove(rsb);
+			}
+			removeList.clear();
+	    }
+	        
+        int noCandidate = candiList.size();
+        int maxDecompounds = 0;
+        List<List<CompoundEntry>> compoundList = new ArrayList();
+        for(int i=0;i<noCandidate;i++) {
+            outQueue.add(new KoreanToken(candiList.get(i).toString(),offsetAtt.startOffset(), 0));
+            List<CompoundEntry> results = confirmCNoun(candiList.get(i).toString());
+            compoundList.add(results);
+            if(maxDecompounds<results.size()) maxDecompounds = results.size();
         }
 
         Map<String, String> cnounMap = new HashMap<String, String>();
 
         // 추출된 명사가 복합명사인 경우 분리한다.
-        for(int i=0;i<maxCandidate;i++) {
-            List<CompoundEntry> results = confirmCNoun(candiList.get(i).toString());
-
-            int pos = 0;
-            int offset = 0;
-            for(CompoundEntry entry : results) {
-                pos += entry.getWord().length();
-                if(cnounMap.get(entry.getWord())!=null) continue;
-
-                // 한글과 매치되는 한자를 짤라서 큐에 저장한다.
-                outQueue.add(new KoreanToken(term.substring(offset,Math.min(pos,term.length())),offsetAtt.startOffset() + offset));
-
-                cnounMap.put(entry.getWord(), entry.getWord());
-
-                if(entry.getWord().length()<2) continue; //  한글은 2글자 이상만 저장한다.
-
-                // 분리된 한글을 큐에 저장한다.
-                outQueue.add(new KoreanToken(entry.getWord(),offsetAtt.startOffset() + offset));
-
-                offset = pos;
+        if(maxDecompounds>1) {
+            int[] pos = new int[noCandidate];
+            int[] offset =new int[noCandidate];
+            int[] index =new int[noCandidate];
+            int minOffset = term.length();
+            
+            for(int i=0;i<maxDecompounds;i++) {
+            	Map dupcheck = new HashMap();
+            	int min = term.length();
+            	boolean done = false;
+            	for(int j=0;j<noCandidate;j++){
+            		if(offset[j]>minOffset || compoundList.get(j).size()<=index[j]) continue;
+            		int posInc = i!=0 && !done ? 1 : 0;
+            		CompoundEntry entry = compoundList.get(j).get(index[j]);
+            		pos[j] += entry.getWord().length();
+            		if(!done && pos[j]<=term.length())
+            			outQueue.add(new KoreanToken(term.substring(offset[j],pos[j]),offsetAtt.startOffset() + offset[j], posInc));
+            		if(dupcheck.get(entry.getWord())==null) {
+            			outQueue.add(new KoreanToken(entry.getWord(),offsetAtt.startOffset() + offset[j], 0));
+            			dupcheck.put(entry.getWord(), entry);
+            		}
+            		offset[j] = pos[j];
+            		index[j]++;
+            		if(min>offset[j]) min = offset[j];
+            		done = true;
+            	}
+            	minOffset = min;
             }
         }
     }
@@ -224,11 +244,6 @@ public final class HanjaMappingFilter extends TokenFilter {
         }
 
         return cnAnalyzer.analyze(input);
-    }
-
-    private boolean isAlphaNumChar(int c) {
-        if((c>=48&&c<=57)||(c>=65&&c<=122)) return true;
-        return false;
     }
 
     @Override
