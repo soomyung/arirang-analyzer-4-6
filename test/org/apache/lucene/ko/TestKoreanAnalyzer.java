@@ -1,5 +1,6 @@
 package org.apache.lucene.ko;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.ko.KoreanAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -33,5 +34,13 @@ public class TestKoreanAnalyzer extends TestCase {
 //	      assertEquals("for line " + line + " input: " + input, expected, actual.toString());
 	      ts.end();
 	      ts.close();
+	}
+	
+	public void testConvertUnicode() throws Exception {
+		char c = 0x772C;
+		System.out.println(c);
+		
+		int code = '領';
+		System.out.println(code);
 	}
 }
