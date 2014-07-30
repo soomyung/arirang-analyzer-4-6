@@ -15,7 +15,7 @@ public class PunctuationDelimitFilterFactory extends TokenFilterFactory {
      *
      * @param args
      */
-    protected PunctuationDelimitFilterFactory(Map<String, String> args) {
+    public PunctuationDelimitFilterFactory(Map<String, String> args) {
         super(args);
     }
 

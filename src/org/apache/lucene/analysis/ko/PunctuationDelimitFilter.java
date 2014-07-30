@@ -1,13 +1,15 @@
 package org.apache.lucene.analysis.ko;
 
-import org.apache.lucene.analysis.TokenFilter;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.lucene.analysis.TokenFilter;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 
 /**
  * Created by SooMyung(soomyung.lee@gmail.com) on 2014. 7. 30.
@@ -73,7 +75,7 @@ public final class PunctuationDelimitFilter extends TokenFilter {
         StringBuffer sb = new StringBuffer();
         int startOffset = offsetAtt.startOffset();
 
-        List<String> array = new ArrayList<>();
+        List<String> array = new ArrayList<String>();
         for(int i=0;i<term.length();i++) {
             if(isPunctuation(term.charAt(i))) {
                 if(sb.length()>0) {

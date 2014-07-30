@@ -1,9 +1,9 @@
 package org.apache.lucene.analysis.ko;
 
+import java.util.Map;
+
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.util.TokenFilterFactory;
-
-import java.util.Map;
 
 /**
  * Created by SooMyung(soomyung.lee@gmail.com) on 2014. 7. 30.
@@ -15,7 +15,7 @@ public class HanjaMappingFilterFactory extends TokenFilterFactory {
      *
      * @param args
      */
-    protected HanjaMappingFilterFactory(Map<String, String> args) {
+    public HanjaMappingFilterFactory(Map<String, String> args) {
         super(args);
     }
 
