@@ -18,8 +18,12 @@ public class TestKoreanAnalyzer1 extends TestCase {
 
         String[] sources = new String[] {
 //                "고려 때 중랑장(中郞將) 이돈수(李敦守)의 12대손이며",
-                "이돈수(李敦守)의",
-//                "K·N의 비극"
+//                "이돈수(李敦守)의",
+//                "K·N의 비극",
+//                "金靜子敎授",
+//                "天國의",
+//                  "기술천이",
+                "12대손이며"
         };
 
         KoreanAnalyzer analyzer = new KoreanAnalyzer();
