@@ -86,7 +86,11 @@ public final class PunctuationDelimitFilter extends TokenFilter {
             }
             sb.append(term.charAt(i));
         }
-        if(sb.length()>0) array.add(sb.toString());
+        
+        if(sb.length()>0) 
+        	array.add(sb.toString());
+    
+        if(array.size()==0) return;
 
         // add original text
         outQueue.add(new Token(termAtt.toString(),startOffset, posIncrAtt.getPositionIncrement()));
@@ -98,7 +102,8 @@ public final class PunctuationDelimitFilter extends TokenFilter {
 
         // add a token with punctuation removed.
         outQueue.add(new Token(sb.toString(),startOffset, 0));
-
+        if(sb.length()==1) return;
+        
         // add tokens splited by punctuation.
         int offset = 0;
         for(int i=0; i<array.size();i++) {
@@ -110,8 +115,7 @@ public final class PunctuationDelimitFilter extends TokenFilter {
     }
 
     private boolean containPunctuation(String term) {
-        if(term.length()<2) return false;
-        for(int i=1;i<term.length()-1;i++) {
+        for(int i=0;i<term.length()-1;i++) {
             if(isPunctuation(term.charAt(i))) return true;
         }
         return false;

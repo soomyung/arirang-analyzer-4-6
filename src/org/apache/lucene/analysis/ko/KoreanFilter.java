@@ -29,7 +29,7 @@ import org.apache.lucene.analysis.ko.morph.MorphAnalyzer;
 import org.apache.lucene.analysis.ko.morph.MorphException;
 import org.apache.lucene.analysis.ko.morph.PatternConstants;
 import org.apache.lucene.analysis.ko.morph.WordEntry;
-import org.apache.lucene.analysis.ko.morph.WordSpaceAnalyzer;
+import org.apache.lucene.analysis.ko.morph.WordSegmentAnalyzer;
 import org.apache.lucene.analysis.ko.utils.DictionaryUtil;
 import org.apache.lucene.analysis.ko.utils.HanjaUtils;
 import org.apache.lucene.analysis.tokenattributes.*;
@@ -38,7 +38,7 @@ public final class KoreanFilter extends TokenFilter {
 
   private final LinkedList<KoreanToken> morphQueue = new LinkedList<KoreanToken>();
   private final MorphAnalyzer morph;
-  private final WordSpaceAnalyzer wsAnal = new WordSpaceAnalyzer();
+  private final WordSegmentAnalyzer wsAnal = new WordSegmentAnalyzer();
   
   private State currentState = null;
   

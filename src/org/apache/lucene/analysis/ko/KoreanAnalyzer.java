@@ -47,6 +47,7 @@ public class KoreanAnalyzer extends StopwordAnalyzerBase {
   private boolean exactMatch = false;
   private boolean originCNoun = true;
   private boolean queryMode = false;
+  private boolean wordSegment = false;
   
   /** An unmodifiable set containing some common words that are usually not useful for searching. */
   public static final CharArraySet STOP_WORDS_SET; 
@@ -101,6 +102,7 @@ public class KoreanAnalyzer extends StopwordAnalyzerBase {
     TokenStream tok = new LowerCaseFilter(matchVersion, src);
     tok = new ClassicFilter(tok);
     tok = new KoreanFilter(tok, bigrammable, hasOrigin, exactMatch, originCNoun, queryMode);
+    if(wordSegment) tok = new WordSegmentFilter(tok);
     tok = new HanjaMappingFilter(tok);
     tok = new PunctuationDelimitFilter(tok);
     tok = new StopFilter(matchVersion, tok, stopwords);
@@ -148,5 +150,17 @@ public class KoreanAnalyzer extends StopwordAnalyzerBase {
   public void setQueryMode(boolean mode) {
     queryMode = mode;
   }
+
+  /**
+   * determin whether word segment analyzer is processing
+   */
+	public boolean isWordSegment() {
+		return wordSegment;
+	}
+	
+	public void setWordSegment(boolean wordSegment) {
+		this.wordSegment = wordSegment;
+	}
+  
   
 }
