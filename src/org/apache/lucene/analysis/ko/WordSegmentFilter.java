@@ -12,6 +12,7 @@ import org.apache.lucene.analysis.ko.morph.MorphException;
 import org.apache.lucene.analysis.ko.morph.PatternConstants;
 import org.apache.lucene.analysis.ko.morph.WordSegmentAnalyzer;
 import org.apache.lucene.analysis.ko.utils.DictionaryUtil;
+import org.apache.lucene.analysis.ko.utils.MorphUtil;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
@@ -69,7 +70,8 @@ public class WordSegmentFilter extends TokenFilter {
         	if(posIncrAtt.getPositionIncrement()==0 || 
         			kToken==null || kToken.getOutputs().size()==0 
         			|| kToken.getOutputs().get(0).getScore()>AnalysisOutput.SCORE_COMPOUNDS ||
-        					(kToken.getOutputs().get(0).getScore()==AnalysisOutput.SCORE_COMPOUNDS && !containJosa(kToken)))
+        					(kToken.getOutputs().get(0).getScore()==AnalysisOutput.SCORE_COMPOUNDS && 
+        					!(containJosa(kToken) || MorphUtil.hasVerbOnly(kToken.getOutputs().get(0).getStem()))))
         		return true;
         	
         	String term = termAtt.toString();
