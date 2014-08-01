@@ -172,10 +172,8 @@ public final class HanjaMappingFilter extends TokenFilter {
             // 후보가 정해진 갯수보다 크면 이후는 삭제하여 지나친 메모리 사용을 방지한다.
             if(candiList.size()>maxCandidateSize) {
             	List<StringBuffer> removed = candiList.subList(maxCandidateSize, candiList.size());
-    			for(StringBuffer rsb : removed) {
-    				removeList.remove(rsb);
-    				candiList.remove(rsb);
-    			}
+            	removeList.removeAll(removed);
+            	candiList.removeAll(removed);
             }
         }
 
