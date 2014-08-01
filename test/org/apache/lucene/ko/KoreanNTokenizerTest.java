@@ -3,6 +3,7 @@ package org.apache.lucene.ko;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,6 +71,20 @@ public class KoreanNTokenizerTest extends TestCase {
             TestCase.assertEquals(sample[1], sb.toString());
 
         }
+
+    }
+    
+    public void testUtils() throws Exception {
+    	List<Integer> list = new ArrayList<Integer>();
+    	for(int i=0;i<100;i++) {
+    		list.add(i);
+    	}
+    	
+    	List<Integer> subList = list.subList(50, 100);
+    	list.removeAll(subList);
+//    	for(int i=0;i<subList.size();i++) {
+//    		list.remove(subList.get(i));
+//    	}
 
     }
 
