@@ -171,8 +171,7 @@ public final class HanjaMappingFilter extends TokenFilter {
             
             // 후보가 정해진 갯수보다 크면 이후는 삭제하여 지나친 메모리 사용을 방지한다.
             if(candiList.size()>maxCandidateSize) {
-            	List<StringBuffer> removed = removeLast(candiList,maxCandidateSize);
-            	removeList.removeAll(removed);
+            	removeLast(candiList,removeList, maxCandidateSize);
             }
         }
 
@@ -243,17 +242,18 @@ public final class HanjaMappingFilter extends TokenFilter {
         return cnAnalyzer.analyze(input);
     }
 
-    private List<StringBuffer> removeLast(List<StringBuffer> list, int start) {
+    private void removeLast(List<StringBuffer> list, List<StringBuffer> removeCandi, int start) {
     	List<StringBuffer> removed = new ArrayList<StringBuffer>();
     	for(int i=start;i<list.size();i++) {
     		removed.add(list.get(i));
     	}
     	
     	for(Object o : removed) {
-    		list.remove(0);
+    		list.remove(o);
+    		removeCandi.remove(o);
     	}
     	
-    	return removed;
+    	removed=null;
     }
     
     @Override
