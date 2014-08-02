@@ -130,7 +130,7 @@ public final class KoreanFilter extends TokenFilter {
       termAtt.setEmpty();
       currentState = captureState();
     }
-    
+ 
     termAtt.setEmpty().append(iw.getTerm());
     offsetAtt.setOffset(iw.getOffset(), iw.getOffset() + iw.getLength());
     morphAtt.setToken(iw);

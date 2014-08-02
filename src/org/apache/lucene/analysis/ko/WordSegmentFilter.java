@@ -20,7 +20,7 @@ import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.util.AttributeSource.State;
 
-public class WordSegmentFilter extends TokenFilter {
+public final class WordSegmentFilter extends TokenFilter {
 
     private final LinkedList<KoreanToken> outQueue = new LinkedList<KoreanToken>();
     
@@ -29,6 +29,8 @@ public class WordSegmentFilter extends TokenFilter {
     private State currentState = null;
     
     private WordSegmentAnalyzer segmentAnalyzer;
+    
+    private boolean hasOrigin = true;
     
     // used to check whether if incomming token is produced by the same text as the previous token at korean filter
     private List<AnalysisOutput> morphOutputs;
@@ -43,6 +45,11 @@ public class WordSegmentFilter extends TokenFilter {
 		segmentAnalyzer = new WordSegmentAnalyzer();
 	}
 
+	protected WordSegmentFilter(TokenStream input, boolean hasOrigin) {
+		this(input);
+		this.hasOrigin = hasOrigin;
+	}
+	
 	@Override
 	public boolean incrementToken() throws IOException {
 		
@@ -50,12 +57,14 @@ public class WordSegmentFilter extends TokenFilter {
     		setAttributesFromQueue();
     		return true;
     	}
-    	
+
     	modeQueue = false;
     	
         while (input.incrementToken()) {
         	
         	KoreanToken kToken = morphAtt.getToken();
+        	
+        	if(kToken==null) return true;
 
         	if(morphOutputs!=null) {
         		if(morphOutputs==kToken.getOutputs()) {
@@ -64,7 +73,7 @@ public class WordSegmentFilter extends TokenFilter {
         			morphOutputs = null;
         		}
         	}
-        	
+
         	assert kToken.getOutputs().size()>0;
         	
         	if(posIncrAtt.getPositionIncrement()==0 || 
@@ -76,6 +85,9 @@ public class WordSegmentFilter extends TokenFilter {
         	
         	String term = termAtt.toString();
         	try {
+        		
+				if(hasOrigin) outQueue.add(new KoreanToken(termAtt.toString(), offsetAtt.startOffset(), posIncrAtt.getPositionIncrement()));
+				
 				List<List<AnalysisOutput>> segments = segmentAnalyzer.analyze(term);
 				if(segments.size()==0) return true;
 				
@@ -86,21 +98,30 @@ public class WordSegmentFilter extends TokenFilter {
 					
 					String word = segments.get(i).get(0).getSource();
 					List<CompoundEntry> entries = segments.get(i).get(0).getCNounList();
-					int posInc = posIncrAtt.getPositionIncrement();
+					int posInc = i==0 ? 0 : 1;
+					
+					if(hasOrigin) outQueue.add(new KoreanToken(word,offsetAtt.startOffset()+offset, posInc));
 					
 					if(entries.size()>1) {
+						if(!hasOrigin || !word.equals(segments.get(i).get(0).getStem()))
+							outQueue.add(new KoreanToken(segments.get(i).get(0).getStem(),offsetAtt.startOffset()+offset, hasOrigin ? 0 : posInc));
+						
 						int innerOffset = offset;
-						for(CompoundEntry ce : entries) {
-							outQueue.add(new KoreanToken(ce.getWord(),offsetAtt.startOffset()+innerOffset, posInc));
+						for(int k=0;k<entries.size();k++) {
+							CompoundEntry ce = entries.get(k);
+							int innerPosInc = k==0 ? 0 : 1;
+							outQueue.add(new KoreanToken(ce.getWord(),offsetAtt.startOffset()+innerOffset, innerPosInc));
 							innerOffset += ce.getWord().length();
 						}
 					} else {
 						if(segments.get(i).get(0).getPatn()>=PatternConstants.PTN_VM && segments.get(i).get(0).getPatn()<PatternConstants.PTN_ZZZ) {
-							outQueue.add(new KoreanToken(word,offsetAtt.startOffset()+offset, posInc));
+							if(!hasOrigin) outQueue.add(new KoreanToken(word,offsetAtt.startOffset()+offset, posInc));
 						} else {
-							outQueue.add(new KoreanToken(segments.get(i).get(0).getStem(),offsetAtt.startOffset()+offset, posInc));
+							if(!hasOrigin || !word.equals(segments.get(i).get(0).getStem()))
+								outQueue.add(new KoreanToken(segments.get(i).get(0).getStem(),offsetAtt.startOffset()+offset, hasOrigin ? 0 : posInc));
 						}
 					}
+					
 					offset += word.length();
 				}
 				

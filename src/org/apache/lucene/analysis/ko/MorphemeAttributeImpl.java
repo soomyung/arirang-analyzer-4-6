@@ -1,5 +1,6 @@
 package org.apache.lucene.analysis.ko;
 
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.util.AttributeImpl;
 
 /**
@@ -12,12 +13,13 @@ public class MorphemeAttributeImpl extends AttributeImpl implements MorphemeAttr
 
     @Override
     public void clear() {
-
+    	koreanToken = null;
     }
 
     @Override
     public void copyTo(AttributeImpl target) {
-
+    	MorphemeAttribute t = (MorphemeAttribute) target;
+        t.setToken(koreanToken);
     }
 
     @Override
@@ -29,4 +31,5 @@ public class MorphemeAttributeImpl extends AttributeImpl implements MorphemeAttr
         return this.koreanToken;
     }
 
+    
 }
