@@ -8,16 +8,22 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
+import org.junit.Test;
 
 import junit.framework.TestCase;
 
 public class WordSegmentFilterTest extends TestCase {
 
+	@Test
 	public void testAnalyze() throws Exception {
 		String input = "긴하루";
-		input = "어린이사서의전문성 긴하루 학교와학원의차이 C# C++ K·N의 비극 도가니 사회참여 '무죄다'라고 무죄다라고";
+//		input = "明憲淑敬睿仁正穆弘聖章純貞徽莊昭端禧粹顯懿獻康綏裕寧慈溫恭安孝定王后";
+		input = "무죄다라고말할수";
 		
 		KoreanAnalyzer a = new KoreanAnalyzer();
+		a.setHasOrigin(true);
+		a.setOriginCNoun(true);
+		a.setBigrammable(false);
 		a.setQueryMode(true);
 		a.setWordSegment(true);
 		
