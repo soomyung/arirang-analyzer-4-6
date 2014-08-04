@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 
@@ -24,6 +25,7 @@ public final class PunctuationDelimitFilter extends TokenFilter {
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
+    private final KeywordAttribute keywordAtt = addAttribute(KeywordAttribute.class);
 
     /**
      * Construct a token stream filtering the given input.
@@ -44,6 +46,7 @@ public final class PunctuationDelimitFilter extends TokenFilter {
         }
 
         while (input.incrementToken()) {
+        	if (keywordAtt.isKeyword()) return true;
             if(!containPunctuation(termAtt.toString())) return true;
 
             splitByPunctuation(termAtt.toString());
