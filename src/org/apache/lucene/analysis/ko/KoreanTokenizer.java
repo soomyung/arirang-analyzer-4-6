@@ -17,11 +17,6 @@ package org.apache.lucene.analysis.ko;
  * limitations under the License.
  */
 
-import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.tokenattributes.*;
-import org.apache.lucene.analysis.util.CharacterUtils;
-import org.apache.lucene.util.Version;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -29,6 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
+import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
+import org.apache.lucene.analysis.util.CharacterUtils;
+import org.apache.lucene.util.Version;
 
 public final class KoreanTokenizer extends Tokenizer {
 
@@ -186,7 +190,7 @@ public final class KoreanTokenizer extends Tokenizer {
     }
 
     private boolean isPreserveSymbol(char c) {
-        return (c=='#' || c=='+' || c=='-' || c=='·');
+        return (c=='#' || c=='+' || c=='-' || c=='·' || c == '&');
     }
 
     @Override
