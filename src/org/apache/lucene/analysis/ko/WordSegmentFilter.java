@@ -91,7 +91,10 @@ public final class WordSegmentFilter extends TokenFilter {
 				if(hasOrigin) outQueue.add(new KoreanToken(termAtt.toString(), offsetAtt.startOffset(), posIncrAtt.getPositionIncrement()));
 				
 				List<List<AnalysisOutput>> segments = segmentAnalyzer.analyze(term);
-				if(segments.size()==0) return true;
+				if(segments.size()<2) {
+					if(hasOrigin) outQueue.removeFirst();
+					return true;
+				}
 				
 				int offset = 0;
 				for(int i=0;i<segments.size();i++)
