@@ -42,5 +42,7 @@ public class TestKoreanAnalyzer extends TestCase {
 		
 		int code = '領';
 		System.out.println(code);
+		
+		System.out.println(Character.getType('&'));
 	}
 }

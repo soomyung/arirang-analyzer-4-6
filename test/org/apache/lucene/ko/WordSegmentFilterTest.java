@@ -18,7 +18,9 @@ public class WordSegmentFilterTest extends TestCase {
 	public void testAnalyze() throws Exception {
 		String input = "긴하루";
 //		input = "明憲淑敬睿仁正穆弘聖章純貞徽莊昭端禧粹顯懿獻康綏裕寧慈溫恭安孝定王后";
-		input = "무죄다라고말할수";
+		input = "무죄다라고 말할수";
+		input = "김다은";
+		input = "김경은";
 		
 		KoreanAnalyzer a = new KoreanAnalyzer();
 		a.setHasOrigin(true);

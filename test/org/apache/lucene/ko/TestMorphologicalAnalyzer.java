@@ -18,7 +18,8 @@ public class TestMorphologicalAnalyzer extends TestCase {
 //			"하고", 
 //			"전기를",
 			"만들고","공장을","가동하는",
-			"진산세고"
+			"진산세고",
+			"김경은"
 		};
 		
 		long start = System.currentTimeMillis();
