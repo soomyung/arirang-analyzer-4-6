@@ -1,11 +1,13 @@
 package org.apache.lucene.analysis.ko;
 
 import java.io.IOException;
+
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
 import org.apache.lucene.analysis.ko.morph.AnalysisOutput;
 import org.apache.lucene.analysis.ko.morph.CompoundEntry;
 import org.apache.lucene.analysis.ko.morph.MorphException;
@@ -73,7 +75,7 @@ public final class WordSegmentFilter extends TokenFilter {
         			morphOutputs = null;
         		}
         	}
-
+        	
         	assert kToken.getOutputs().size()>0;
         	
         	if(posIncrAtt.getPositionIncrement()==0 || 
