@@ -191,6 +191,8 @@ public final class KoreanFilter extends TokenFilter {
     
     for(AnalysisOutput output : outputs) 
     {
+      if(queryMode && hasOrigin && 
+    		  output.getScore()==AnalysisOutput.SCORE_ANALYSIS && output.getCNounList().size()<2) break;
       if(output.getPos()==PatternConstants.POS_VERB) continue; // extract keywords from only noun
       if(!originCNoun&&output.getCNounList().size()>0) continue; // except compound nound
       int inc = map.size()>0 ? 0 : 1;

@@ -22,7 +22,6 @@ public class MorphemeAttributeImpl extends AttributeImpl implements MorphemeAttr
         t.setToken(koreanToken);
     }
 
-    @Override
     public void setToken(KoreanToken token) {
         this.koreanToken = token;
     }
