@@ -32,13 +32,13 @@ import org.apache.lucene.analysis.ko.morph.WordEntry;
 import org.apache.lucene.analysis.ko.morph.WordSegmentAnalyzer;
 import org.apache.lucene.analysis.ko.utils.DictionaryUtil;
 import org.apache.lucene.analysis.ko.utils.HanjaUtils;
+import org.apache.lucene.analysis.ko.utils.MorphUtil;
 import org.apache.lucene.analysis.tokenattributes.*;
 
 public final class KoreanFilter extends TokenFilter {
 
   private final LinkedList<KoreanToken> morphQueue = new LinkedList<KoreanToken>();
   private final MorphAnalyzer morph;
-  private final WordSegmentAnalyzer wsAnal = new WordSegmentAnalyzer();
   
   private State currentState = null;
   
@@ -55,7 +55,6 @@ public final class KoreanFilter extends TokenFilter {
   private final MorphemeAttribute morphAtt = addAttribute(MorphemeAttribute.class);
 
   private static final String KOREAN_TYPE = KoreanTokenizer.TYPE_KOREAN;
-  private static final String CHINESE_TYPE = KoreanTokenizer.TYPE_KOREAN;
     
   public KoreanFilter(TokenStream input) {
     this(input, true);
@@ -149,6 +148,7 @@ public final class KoreanFilter extends TokenFilter {
    */
   private void analysisKorean(String input) throws MorphException {
 
+	input = trimHangul(input);
     List<AnalysisOutput> outputs = morph.analyze(input);
     if(outputs.size()==0) return;
     
@@ -182,6 +182,24 @@ public final class KoreanFilter extends TokenFilter {
       }
 
       morphQueue.addAll(map.values());
+  }
+  
+  /**
+   * remove the preserved punctuation character followed by the input hangul word. (ex. 찾아서-)
+   * @param input
+   * @return
+   */
+  private String trimHangul(String input) {
+	  
+	  int minpos = input.length();
+	  for(int i=input.length()-1 ; i>=0 ; i--) {
+		  if(MorphUtil.isHanSyllable(input.charAt(i))) break;
+		  minpos = i;
+	  }
+	  
+	  if(minpos == input.length()) return input;
+	  
+	  return input.substring(0, minpos);
   }
   
   private void extractKeyword(List<AnalysisOutput> outputs, int startoffset, Map<String,KoreanToken> map, int position) {

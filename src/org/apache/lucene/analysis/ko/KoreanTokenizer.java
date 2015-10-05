@@ -182,7 +182,8 @@ public final class KoreanTokenizer extends Tokenizer {
      */
     private String getType() {
         char[] buffer = termAtt.buffer();
-        for(int i=0;i<buffer.length;i++) {
+        int leng = termAtt.length();
+        for(int i=0;i<leng;i++) {
             if(buffer[i]=='\u0000') break;
             if(buffer[i]>='\uAC00' && buffer[i]<='\uD7A3') return TYPE_KOREAN;
         }
